@@ -84,6 +84,6 @@ export class Core {
   async close() {
     this.closed = true;
     this.child.stdin.end();
-    if (this.child.exitCode === null) await new Promise<void>(r => this.child.once('exit', () => r()));
+    if (this.child.exitCode === null && this.child.signalCode === null) await new Promise<void>(r => this.child.once('exit', () => r()));
   }
 }

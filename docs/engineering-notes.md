@@ -68,7 +68,7 @@ Lean 中守恒通过状态分类汇总及提交检查维持，定理对任意事
 
 AgentBudget 的 UUID 只是一次本地演示会话。没有 Agent Card、A2A 端点或认证，故没有兼容性声明。预算取消规则是本项目设计。
 
-## 未验证问题与下一步
+## V1 未验证问题与下一步（2026-10-16 的记录）
 
 - 测试网：没有 RPC、余额读取、真实 eth_call、交易回执、链上授权撤销或确认数实验。
 - 真实最终未付款：必须同时证明历史未付款和未来不可付款；需要处理 RPC 视图不一致、链上时间、重组、已广播交易及 nonce 状态。
@@ -78,3 +78,17 @@ AgentBudget 的 UUID 只是一次本地演示会话。没有 Agent Card、A2A �
 - VDSI：空工作区及同级 README 未发现 VDSI，保持独立；没有往其他项目添加依赖。
 
 学习顺序建议：先看 `advance` 的四态迁移，再看 SDK signer 回调与 handoff 的顺序，最后运行 timeout 与 unpaid，对比“等待结束”和“可以安全回收”为什么不是同一回事。
+
+## 2026-10-17：持久化恢复、结果证据与钱包权限
+
+实现与运行说明见 [recovery.md](recovery.md)。以上 V1 的内存与钱包限制现在需要按入口区分：旧 demo 保持不变，demo:recovery 使用新的持久化 Broker 和独立模拟结算进程。
+
+- 接触组件：仍使用已锁定的 @x402/core / @x402/evm 2.28.0、viem 2.57.7；SDK 提供报价、付款 payload、签名与本地验证。SDK 不替我们持久化预算、提供本项目所需的最终未付款证据或隔离 Agent 权限。源码路径与 V1 相同，没有新增支付依赖。
+- 新的运行组件：[Node 内置 SQLite](https://nodejs.org/api/sqlite.html)，本机 Node 25.8.1、SQLite 3.53.1；最低运行版本提高到 Node 22.13（无需 SQLite 开关）。新运行时使用 DatabaseSync；实际验证环境仍只有 Node 25.8.1。
+- 持久化依据：[SQLite synchronous](https://www.sqlite.org/pragma.html#pragma_synchronous)。采用 WAL + FULL，命令先于执行、回复先于外部副作用落盘。来源是 SQLite 文档加本项目设计；SIGKILL 测试通过不等于验证断电耐久性。
+- 可信结果：Ed25519 固定公钥、新鲜 challenge、任务及付款完整绑定是本项目协议；不能称为 x402 已发布能力。实际测试了伪造/错公钥/错上下文拒绝，以及模拟结算崩溃恢复。
+- 权限：Agent 只持购买和查询的 bearer；钱包私钥与 Lean 连接留在 Broker 进程。来源是我们的 API 设计与越权测试；没有宣称同一 OS 用户隔离或硬件钱包安全。
+- Lean：新增 replay_prefix_suffix，引理检查通过；精确事件恢复的等价性来自证明。磁盘正确保存、结果签名实现、SDK 与可信启动仍是显式工程假设。
+- A2A：本阶段没有新增 SDK 接入，也没有更改 V1 的规范核实结论。
+
+尚待验证：磁盘 I/O 故障、断电、备份回滚、日志迁移/压缩、OS 用户隔离、钱包密钥轮换、真实链上最终性。授权过期但未知的付款仍须由可信权威给出最终结果，不能因过期自动回收。

@@ -2,4 +2,11 @@
 node_modules/
 dist/
 artifacts/
+runtime-data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.env
+.env.*
+!.env.example
 .DS_Store

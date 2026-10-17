@@ -7,7 +7,8 @@
     "build": "lake build && tsc --noEmit",
     "demo": "tsx adapter/demo.ts",
     "test": "lake build && lake env lean Audit.lean && tsc --noEmit && tsx --test tests/*.test.ts",
-    "replay": "tsx adapter/replay.ts"
+    "replay": "tsx adapter/replay.ts",
+    "demo:recovery": "tsx adapter/recovery-demo.ts"
   },
   "dependencies": {
     "@x402/core": "2.28.0",
@@ -20,6 +21,6 @@
     "typescript": "5.9.3"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   }
 }

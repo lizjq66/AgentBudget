@@ -128,4 +128,11 @@ theorem ledger_final_idempotent (es : List Entry) (b : Binding) (now later : Nat
   intro e _
   exact edit_final_idempotent b e now later a finalAction
 
+-- Restarting from the exact committed prefix and applying the remaining
+-- commands is identical to uninterrupted execution. Storage fidelity is an
+-- external assumption; this theorem does not model SQLite or process I/O.
+theorem replay_prefix_suffix (s : State) (before after : List Event) :
+    run (run s before) after = run s (before ++ after) := by
+  simp [run, List.foldl_append]
+
 end AgentBudget

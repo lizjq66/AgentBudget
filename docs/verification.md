@@ -57,4 +57,21 @@ released_no_handoff       [propext]
 
 ## 尚未验收
 
-没有真实测试网交易、真实合约预执行、链上最终非付款证明、A2A SDK 交互、钱包权限隔离或进程崩溃恢复。所有相关限制保留在 README 和工程笔记中。
+V1 没有真实测试网交易、真实合约预执行、链上最终非付款证明、A2A SDK 交互、钱包权限隔离或进程崩溃恢复。下面记录新增运行时的验证，不改变 V1 演示入口。
+
+## 2026-10-17：新增持久化运行时验证
+
+npm test：33 项通过，0 失败（含 14 个 SIGKILL 子测试）。Lean 构建、TypeScript 类型检查、Audit.lean 全部通过；新增 replay_prefix_suffix 仅依赖标准 propext、Quot.sound，没有 sorryAx。
+
+已验证：
+
+- 14 个钱包/核心崩溃点重启后，未 handoff 的预留安全释放，已 handoff 的付款沿用同一 nonce 完成；重复请求不增加花费。
+- 模拟结算进程在接受付款后 SIGKILL，钱包保留 InFlight；结算和钱包重启后确认同一付款。
+- 模拟器持久化禁用后 SIGKILL，重启仍拒绝迟到的原始签名，钱包收到新鲜签名证据后释放。
+- 无 capability、越权操作、伪装另一 Agent 和跨 Agent 请求被拒绝；取消不释放在途付款。
+- 第二个管理者被锁拒绝；更改预算配置或固定公钥拒绝恢复。
+- 伪造签名、错误公钥、错误 challenge、任务或金额绑定被拒绝。
+
+实际运行 demo:recovery，配置 examples/demo.json，数据目录 runtime-data/verified-recovery。在 handoff:committed 处 SIGKILL 后，新进程恢复：总额 100000，可用 40000，在途 60000，已花费 0；B 请求 50000 被拒绝。最终同一付款标识转为 Settled：在途 0，已花费 60000，可用仍 40000。所有金额均为最小单位，未使用真实资金。
+
+未验证真实断电、磁盘故障、备份回滚、链上最终性或同 OS 用户敌对代码隔离。完整边界见 [recovery.md](recovery.md)。
