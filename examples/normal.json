@@ -1,0 +1,10 @@
+{
+  "total": "0.23",
+  "agents": { "A": "0.08", "B": "0.09" },
+  "quotes": { "A": "0.08", "B": "0.09" },
+  "reservationTtlMs": 500,
+  "signingDelayMs": 5,
+  "requestTimeoutMs": 1000,
+  "paymentResultDelayMs": 10,
+  "authorizationValiditySeconds": 120
+}

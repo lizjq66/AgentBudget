@@ -1,0 +1,10 @@
+name = "agentbudget"
+version = "0.1.0"
+defaultTargets = ["agentbudget"]
+
+[[lean_lib]]
+name = "AgentBudget"
+
+[[lean_exe]]
+name = "agentbudget"
+root = "Main"

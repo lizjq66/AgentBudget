@@ -1,0 +1,25 @@
+{
+  "name": "agentbudget",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "lake build && tsc --noEmit",
+    "demo": "tsx adapter/demo.ts",
+    "test": "lake build && lake env lean Audit.lean && tsc --noEmit && tsx --test tests/*.test.ts",
+    "replay": "tsx adapter/replay.ts"
+  },
+  "dependencies": {
+    "@x402/core": "2.28.0",
+    "@x402/evm": "2.28.0",
+    "viem": "2.57.7"
+  },
+  "devDependencies": {
+    "@types/node": "25.3.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
